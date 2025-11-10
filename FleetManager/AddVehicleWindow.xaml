@@ -1,0 +1,32 @@
+﻿<Window x:Class="FleetManager.AddVehicleWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Ajouter un véhicule" Height="400" Width="350"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
+
+    <Grid Margin="10">
+        <StackPanel>
+            <TextBlock Text="Immatriculation:"/>
+            <TextBox x:Name="txtImmatriculation" Margin="0,0,0,10"/>
+
+            <TextBlock Text="Marque:"/>
+            <TextBox x:Name="txtMarque" Margin="0,0,0,10"/>
+
+            <TextBlock Text="Modèle:"/>
+            <TextBox x:Name="txtModele" Margin="0,0,0,10"/>
+
+            <TextBlock Text="Année:"/>
+            <TextBox x:Name="txtAnnee" Margin="0,0,0,10"/>
+
+            <TextBlock Text="Carburant:"/>
+            <ComboBox x:Name="cmbCarburant" Margin="0,0,0,20">
+                <ComboBoxItem Content="Essence"/>
+                <ComboBoxItem Content="Diesel"/>
+                <ComboBoxItem Content="Hybride"/>
+                <ComboBoxItem Content="Électrique"/>
+            </ComboBox>
+
+            <Button Content="Ajouter" Click="BtnAdd_Click" Height="30"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,30 @@
+﻿<Window x:Class="FleetManager.AddSuiviWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        Title="Ajouter un suivi" Height="450" Width="350"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
+
+    <Grid Margin="10">
+        <StackPanel>
+            <TextBlock Text="Véhicule:"/>
+            <ComboBox x:Name="cmbVehicule" Margin="0,0,0,10"/>
+
+            <TextBlock Text="Date du suivi:"/>
+            <DatePicker x:Name="dpDateSuivi" SelectedDate="{x:Static sys:DateTime.Now}" Margin="0,0,0,10"/>
+
+            <TextBlock Text="Carburant (litres):"/>
+            <TextBox x:Name="txtCarburant" Margin="0,0,0,10"/>
+
+            <TextBlock Text="Coût (€):"/>
+            <TextBox x:Name="txtCout" Margin="0,0,0,10"/>
+
+            <TextBlock Text="Distance (km):"/>
+            <TextBox x:Name="txtDistance" Margin="0,0,0,10"/>
+
+            <TextBlock Text="Commentaire:"/>
+            <TextBox x:Name="txtCommentaire" Margin="0,0,0,20" Height="60" TextWrapping="Wrap" AcceptsReturn="True"/>
+
+            <Button Content="Ajouter" Click="BtnAddSuivi_Click" Height="30"/>
+        </StackPanel>
+    </Grid>
+</Window>
