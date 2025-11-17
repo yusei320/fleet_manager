@@ -1,4 +1,5 @@
-﻿using MySql.Data.MySqlClient;
+﻿using FleetManager;
+using MySql.Data.MySqlClient;
 using System;
 using System.Data;
 using System.Windows;
@@ -129,6 +130,13 @@ namespace FleetManager
             }
         }
 
+        private void OpenAdmin_Click(object sender, RoutedEventArgs e)
+        {
+            AdminWindow admin = new AdminWindow();
+            admin.Show();
+        }
+
+
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
             // Efface tout le contenu et recharge le tableau de bord
@@ -197,5 +205,8 @@ namespace FleetManager
             LoadDashboard();
         }
 
+    } 
+
     }
-}
+
+

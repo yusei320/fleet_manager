@@ -1,0 +1,23 @@
+﻿<Window x:Class="FleetManager.CreateUserWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Créer un utilisateur" Height="300" Width="400" WindowStartupLocation="CenterScreen">
+
+    <StackPanel Margin="20">
+
+        <TextBox x:Name="txtNom" Margin="0,5" PlaceholderText="Nom"/>
+        <TextBox x:Name="txtPrenom" Margin="0,5" PlaceholderText="Prénom"/>
+        <TextBox x:Name="txtEmail" Margin="0,5" PlaceholderText="Email"/>
+        <PasswordBox x:Name="txtPass" Margin="0,5"/>
+
+        <ComboBox x:Name="cbRole" Margin="0,5">
+            <ComboBoxItem Content="Utilisateur"/>
+            <ComboBoxItem Content="Administrateur"/>
+        </ComboBox>
+
+        <Button Content="Créer" Height="35" Margin="0,10" Click="BtnCreate_Click"/>
+
+    </StackPanel>
+
+</Window>
+

@@ -9,6 +9,7 @@
 
             <!-- Menu -->
             <Menu DockPanel.Dock="Top">
+                <MenuItem Header="Administration" Click="OpenAdmin_Click"/>
                 <MenuItem Header="Accueil" Click="MenuItem_Click"/>
                 <MenuItem Header="Véhicules">
                     <MenuItem Header="Ajouter un véhicule" Click="Menu_AddVehicle_Click"/>

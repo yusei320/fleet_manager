@@ -9,6 +9,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="HtmlSanitizer" Version="9.0.886" />
 		<PackageReference Include="MySql.Data" Version="9.5.0" />
 	</ItemGroup>
 

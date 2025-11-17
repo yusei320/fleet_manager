@@ -37,13 +37,34 @@ namespace FleetManager
                     {
                         if (reader.Read())
                         {
-                            string role = reader["role"].ToString();
-                            string prenom = reader["prenom"].ToString();
+                            // Vérifie si l'utilisateur est bloqué
+                            object bloqueObj = reader["bloque_jusqu"];
+                            if (bloqueObj != DBNull.Value && DateTime.TryParse(bloqueObj.ToString(), out DateTime bloqueUntil))
+                            {
+                                if (DateTime.Now < bloqueUntil)
+                                {
+                                    lblMessage.Text = $"Compte bloqué jusqu'au {bloqueUntil}";
+                                    return;
+                                }
+                            }
+
+                            string role = reader["role"]?.ToString() ?? string.Empty;
+                            var prenom = reader["prenom"] != null ? reader["prenom"].ToString() : string.Empty;
 
                             MessageBox.Show($"Bienvenue {prenom} ({role})", "Connexion réussie", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                            MainWindow main = new MainWindow();
-                            main.Show();
+                            // Ouvre la bonne fenêtre selon le rôle
+                            if (role.Trim().Equals("Administrateur", StringComparison.OrdinalIgnoreCase))
+                            {
+                                AdminWindow admin = new AdminWindow();
+                                admin.Show();
+                            }
+                            else
+                            {
+                                MainWindow main = new MainWindow();
+                                main.Show();
+                            }
+
                             this.Close();
                         }
                         else
@@ -58,6 +79,8 @@ namespace FleetManager
                 }
             }
         }
+
+
 
         // Efface le message d'erreur quand l'utilisateur modifie email ou mot de passe
         private void txtInput_TextChanged(object sender, RoutedEventArgs e)
