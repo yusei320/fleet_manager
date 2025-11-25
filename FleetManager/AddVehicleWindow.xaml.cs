@@ -8,11 +8,13 @@ namespace FleetManager
     public partial class AddVehicleWindow : Window
     {
         private string connectionString;
+        private int currentUserId;
 
-        public AddVehicleWindow(string connStr)
+        public AddVehicleWindow(string connStr, int userId)
         {
             InitializeComponent();
             connectionString = connStr;
+            currentUserId = userId;
         }
 
         private void BtnAdd_Click(object sender, RoutedEventArgs e)
@@ -34,15 +36,22 @@ namespace FleetManager
                 try
                 {
                     conn.Open();
-                    string query = "INSERT INTO vehicules (immatriculation, marque, modele, annee, carburant) VALUES (@immat,@marque,@modele,@annee,@carburant)";
+
+                    string query = @"INSERT INTO vehicules 
+                                    (immatriculation, marque, modele, annee, carburant, id_utilisateur) 
+                                     VALUES (@immat,@marque,@modele,@annee,@carburant,@idUser)";
+
                     MySqlCommand cmd = new MySqlCommand(query, conn);
+
                     cmd.Parameters.AddWithValue("@immat", immat);
                     cmd.Parameters.AddWithValue("@marque", marque);
                     cmd.Parameters.AddWithValue("@modele", modele);
                     cmd.Parameters.AddWithValue("@annee", annee != "" ? Convert.ToInt32(annee) : (object)DBNull.Value);
                     cmd.Parameters.AddWithValue("@carburant", carburant);
+                    cmd.Parameters.AddWithValue("@idUser", currentUserId);
 
                     cmd.ExecuteNonQuery();
+
                     MessageBox.Show("Véhicule ajouté avec succès !");
                     this.Close();
                 }

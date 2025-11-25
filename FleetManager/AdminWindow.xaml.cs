@@ -7,13 +7,25 @@ namespace FleetManager
 {
     public partial class AdminWindow : Window
     {
-        string connectionString = "server=localhost;database=fleet_managers;uid=admin_fleet;pwd=AdminFleet2024!;";
+        string connectionString = "server=localhost;Port=3309;database=fleet_managers;uid=root;pwd=;";
+        private int adminId; // ID de l'admin connecté
 
-        public AdminWindow()
+        public AdminWindow(int userId)
         {
             InitializeComponent();
+
+            // Vérifie que l'utilisateur connecté est bien admin
+            if (!AuthService.IsAdmin(userId))
+            {
+                MessageBox.Show("Accès refusé : vous n'avez pas les droits d'administration.", "Accès refusé", MessageBoxButton.OK, MessageBoxImage.Warning);
+                this.Close();
+                return;
+            }
+
+            adminId = userId;
             LoadUsers();
         }
+
 
         private void LoadUsers()
         {
@@ -22,20 +34,28 @@ namespace FleetManager
             using MySqlConnection conn = new MySqlConnection(connectionString);
             conn.Open();
 
-            string query = "SELECT id, nom, prenom, email, bloque_jusqu FROM utilisateurs";
+            string query = "SELECT id, nom, prenom, email, role, bloque_jusqu FROM utilisateurs";
             MySqlCommand cmd = new MySqlCommand(query, conn);
 
-            using MySqlDataReader rd = cmd.ExecuteReader();
-            while (rd.Read())
+            using MySqlDataReader rd = cmd.ExecuteReader()
             {
-                string bloque = rd["bloque_jusqu"] != DBNull.Value ? rd["bloque_jusqu"].ToString() : "Actif";
-                UserList.Items.Add($"{rd["id"]} - {rd["prenom"]} {rd["nom"]} ({rd["email"]}) - {bloque}");
+                while (rd.Read())
+                {
+                    string bloque = rd["bloque_jusqu"] != DBNull.Value
+                                    ? rd["bloque_jusqu"].ToString()
+                                    : "Actif";
+
+                    UserList.Items.Add(
+                        $"{rd["id"]} - {rd["prenom"]} {rd["nom"]} | {rd["role"]} | {rd["email"]} | {bloque}"
+                    );
+                }
             }
         }
 
         private int GetSelectedUserId()
         {
             if (UserList.SelectedItem == null) return -1;
+
             string str = UserList.SelectedItem.ToString();
             return int.Parse(str.Split('-')[0].Trim());
         }
@@ -47,21 +67,26 @@ namespace FleetManager
             using MySqlConnection conn = new MySqlConnection(connectionString);
             conn.Open();
 
-            string query = "SELECT * FROM vehicules WHERE id_utilisateur=@id";
+            string query = "SELECT immatriculation, marque, modele FROM vehicules WHERE id_utilisateur=@id";
             MySqlCommand cmd = new MySqlCommand(query, conn);
             cmd.Parameters.AddWithValue("@id", idUser);
 
-            using MySqlDataReader rd = cmd.ExecuteReader();
-            while (rd.Read())
+            using MySqlDataReader rd = cmd.ExecuteReader()
             {
-                VehiculeList.Items.Add($"{rd["marque"]} {rd["modele"]} - {rd["immatriculation"]}");
+                while (rd.Read())
+                {
+                    VehiculeList.Items.Add(
+                        $"{rd["marque"]} {rd["modele"]} - {rd["immatriculation"]}"
+                    );
+                }
             }
         }
 
         private void UserList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             int id = GetSelectedUserId();
-            if (id != -1) LoadVehicules(id);
+            if (id != -1)
+                LoadVehicules(id);
         }
 
         private void BtnCreate_Click(object sender, RoutedEventArgs e)
@@ -74,9 +99,26 @@ namespace FleetManager
         private void BtnDelete_Click(object sender, RoutedEventArgs e)
         {
             int id = GetSelectedUserId();
-            if (id == -1) { MessageBox.Show("Sélectionnez un utilisateur"); return; }
+            if (id == -1)
+            {
+                MessageBox.Show("Sélectionnez un utilisateur");
+                return;
+            }
 
-            if (MessageBox.Show("Voulez-vous vraiment supprimer cet utilisateur ?", "Attention", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            if (id == adminId)
+            {
+                MessageBox.Show("Vous ne pouvez pas vous supprimer vous-même !");
+                return;
+            }
+
+            if (id == 1) // Super admin root
+            {
+                MessageBox.Show("Impossible de supprimer le super administrateur !");
+                return;
+            }
+
+            if (MessageBox.Show("Voulez-vous vraiment supprimer cet utilisateur ?",
+                "Confirmation", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
             {
                 using MySqlConnection conn = new MySqlConnection(connectionString);
                 conn.Open();
@@ -92,7 +134,17 @@ namespace FleetManager
         private void BtnBlock_Click(object sender, RoutedEventArgs e)
         {
             int id = GetSelectedUserId();
-            if (id == -1) { MessageBox.Show("Sélectionnez un utilisateur"); return; }
+            if (id == -1)
+            {
+                MessageBox.Show("Sélectionnez un utilisateur");
+                return;
+            }
+
+            if (id == adminId)
+            {
+                MessageBox.Show("Vous ne pouvez pas vous bloquer vous-même !");
+                return;
+            }
 
             using MySqlConnection conn = new MySqlConnection(connectionString);
             conn.Open();

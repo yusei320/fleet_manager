@@ -28,7 +28,7 @@ namespace FleetManager
                 try
                 {
                     conn.Open();
-                    string query = "SELECT * FROM utilisateurs WHERE email=@Email AND mot_de_passe=SHA2(@Mdp, 256)";
+                    string query = "SELECT id, prenom, role, bloque_jusqu FROM utilisateurs WHERE email=@Email AND mot_de_passe=SHA2(@Mdp, 256)";
                     MySqlCommand cmd = new MySqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@Email", email);
                     cmd.Parameters.AddWithValue("@Mdp", motdepasse);
@@ -48,20 +48,21 @@ namespace FleetManager
                                 }
                             }
 
+                            int userId = Convert.ToInt32(reader["id"]);
                             string role = reader["role"]?.ToString() ?? string.Empty;
                             var prenom = reader["prenom"] != null ? reader["prenom"].ToString() : string.Empty;
 
                             MessageBox.Show($"Bienvenue {prenom} ({role})", "Connexion réussie", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                            // Ouvre la bonne fenêtre selon le rôle
+                            // Ouvre la bonne fenêtre selon le rôle, en passant l'id utilisateur
                             if (role.Trim().Equals("Administrateur", StringComparison.OrdinalIgnoreCase))
                             {
-                                AdminWindow admin = new AdminWindow();
+                                AdminWindow admin = new AdminWindow(userId);
                                 admin.Show();
                             }
                             else
                             {
-                                MainWindow main = new MainWindow();
+                                MainWindow main = new MainWindow(userId);
                                 main.Show();
                             }
 
@@ -80,12 +81,17 @@ namespace FleetManager
             }
         }
 
-
-
         // Efface le message d'erreur quand l'utilisateur modifie email ou mot de passe
         private void txtInput_TextChanged(object sender, RoutedEventArgs e)
         {
             lblMessage.Text = "";
+        }
+
+        private void BtnInscription_Click(object sender, RoutedEventArgs e)
+        {
+            // Ouvre la fenêtre de création d'utilisateur (inscription)
+            CreateUserWindow createUser = new CreateUserWindow();
+            createUser.ShowDialog();
         }
     }
 }

@@ -24,9 +24,10 @@
 
                 <Button Content="Se connecter" Height="35" Background="#0078D7" Foreground="White"
                         FontWeight="SemiBold" Click="BtnConnexion_Click"/>
-                
+
                 <Button Content="Inscription" Height="35" Background="#0078D7" Foreground="White"
-        FontWeight="SemiBold" Click="BtnConnexion_Click"/>
+        FontWeight="SemiBold" Click="BtnInscription_Click"/>
+
 
                 <TextBlock x:Name="lblMessage" Foreground="Red" 
                            HorizontalAlignment="Center" Margin="0,15,0,0"/>

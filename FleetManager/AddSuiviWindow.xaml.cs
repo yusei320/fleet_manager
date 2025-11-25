@@ -2,18 +2,19 @@
 using System;
 using System.Data;
 using System.Windows;
-using System.Windows.Controls;
 
 namespace FleetManager
 {
     public partial class AddSuiviWindow : Window
     {
         private string connectionString;
+        private int currentUserId;
 
-        public AddSuiviWindow(string connStr)
+        public AddSuiviWindow(string connStr, int userId)
         {
             InitializeComponent();
             connectionString = connStr;
+            currentUserId = userId;
             LoadVehicules();
         }
 
@@ -24,8 +25,13 @@ namespace FleetManager
                 try
                 {
                     conn.Open();
-                    string query = "SELECT id, immatriculation FROM vehicules";
+                    string query = @"SELECT id, immatriculation 
+                                     FROM vehicules 
+                                     WHERE id_utilisateur=@id";
+
                     MySqlCommand cmd = new MySqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@id", currentUserId);
+
                     MySqlDataAdapter adapter = new MySqlDataAdapter(cmd);
                     DataTable dt = new DataTable();
                     adapter.Fill(dt);
@@ -50,6 +56,7 @@ namespace FleetManager
             }
 
             int idVehicule = Convert.ToInt32(cmbVehicule.SelectedValue);
+
             DateTime dateSuivi = dpDateSuivi.SelectedDate ?? DateTime.Now;
 
             decimal carburant = 0;
@@ -63,11 +70,19 @@ namespace FleetManager
 
             string commentaire = txtCommentaire.Text.Trim();
 
+            // 🚨 Sécurité : vérifie que le véhicule appartient à l'utilisateur
+            if (!CheckVehiculeOwnership(idVehicule))
+            {
+                MessageBox.Show("Ce véhicule n'appartient pas à votre compte !");
+                return;
+            }
+
             using (MySqlConnection conn = new MySqlConnection(connectionString))
             {
                 try
                 {
                     conn.Open();
+
                     string query = @"INSERT INTO suivi 
                                      (id_vehicule, date_suivi, carburant_litre, cout, distance_km, commentaire)
                                      VALUES (@id_vehicule, @date_suivi, @carburant, @cout, @distance, @commentaire)";
@@ -88,6 +103,24 @@ namespace FleetManager
                 {
                     MessageBox.Show("Erreur : " + ex.Message);
                 }
+            }
+        }
+
+        private bool CheckVehiculeOwnership(int vehId)
+        {
+            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+
+                string query = @"SELECT COUNT(*) FROM vehicules 
+                                 WHERE id=@veh AND id_utilisateur=@user";
+
+                MySqlCommand cmd = new MySqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@veh", vehId);
+                cmd.Parameters.AddWithValue("@user", currentUserId);
+
+                int count = Convert.ToInt32(cmd.ExecuteScalar());
+                return count > 0;
             }
         }
     }
