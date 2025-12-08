@@ -1,23 +1,201 @@
 ﻿<Window x:Class="FleetManager.CreateUserWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Créer un utilisateur" Height="300" Width="400" WindowStartupLocation="CenterScreen">
+        Title="Créer un utilisateur" Height="580" Width="450" 
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="#F5F7FA">
 
-    <StackPanel Margin="20">
+    <Window.Resources>
+        <!-- Style pour les TextBlock (labels) -->
+        <Style x:Key="LabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#2C3E50"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+        </Style>
 
-        <TextBox x:Name="txtNom" Margin="0,5" PlaceholderText="Nom"/>
-        <TextBox x:Name="txtPrenom" Margin="0,5" PlaceholderText="Prénom"/>
-        <TextBox x:Name="txtEmail" Margin="0,5" PlaceholderText="Email"/>
-        <PasswordBox x:Name="txtPass" Margin="0,5"/>
+        <!-- Style pour les TextBox -->
+        <Style x:Key="ModernTextBox" TargetType="TextBox">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderBrush" Value="#D1D8E0"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#2C3E50"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="#9B59B6"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#BB8FCE"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
 
-        <ComboBox x:Name="cbRole" Margin="0,5">
-            <ComboBoxItem Content="Utilisateur"/>
-            <ComboBoxItem Content="Administrateur"/>
-        </ComboBox>
+        <!-- Style pour PasswordBox -->
+        <Style x:Key="ModernPasswordBox" TargetType="PasswordBox">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderBrush" Value="#D1D8E0"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#2C3E50"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="#9B59B6"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#BB8FCE"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
 
-        <Button Content="Créer" Height="35" Margin="0,10" Click="BtnCreate_Click"/>
+        <!-- Style pour ComboBox -->
+        <Style x:Key="ModernComboBox" TargetType="ComboBox">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderBrush" Value="#D1D8E0"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#2C3E50"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+        </Style>
 
-    </StackPanel>
+        <!-- Style pour le bouton -->
+        <Style x:Key="ModernButton" TargetType="Button">
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="Background" Value="#9B59B6"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="6"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#884EA0"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#76448A"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
 
+    <Border Background="White" 
+            CornerRadius="10" 
+            Margin="20">
+        <Border.Effect>
+            <DropShadowEffect Color="#22000000" 
+                             Direction="270" 
+                             ShadowDepth="3" 
+                             BlurRadius="15" 
+                             Opacity="0.3"/>
+        </Border.Effect>
+        <Grid Margin="30">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- En-tête -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,25">
+                <TextBlock Text="👤 Nouvel Utilisateur" 
+                           FontSize="24" 
+                           FontWeight="Bold" 
+                           Foreground="#2C3E50"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="Créez un nouveau compte utilisateur" 
+                           FontSize="12" 
+                           Foreground="#7F8C8D"
+                           HorizontalAlignment="Center"
+                           Margin="0,5,0,0"/>
+            </StackPanel>
+
+            <!-- Formulaire -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- Nom -->
+                    <TextBlock Text="📝 Nom" Style="{StaticResource LabelStyle}"/>
+                    <TextBox x:Name="txtNom" 
+                            Style="{StaticResource ModernTextBox}"/>
+
+                    <!-- Prénom -->
+                    <TextBlock Text="📝 Prénom" Style="{StaticResource LabelStyle}"/>
+                    <TextBox x:Name="txtPrenom" 
+                            Style="{StaticResource ModernTextBox}"/>
+
+                    <!-- Email -->
+                    <TextBlock Text="✉️ Email" Style="{StaticResource LabelStyle}"/>
+                    <TextBox x:Name="txtEmail" 
+                            Style="{StaticResource ModernTextBox}"/>
+
+                    <!-- Mot de passe -->
+                    <TextBlock Text="🔒 Mot de passe" Style="{StaticResource LabelStyle}"/>
+                    <PasswordBox x:Name="txtPass" 
+                                Style="{StaticResource ModernPasswordBox}"/>
+
+                    <!-- Rôle -->
+                    <TextBlock Text="👥 Rôle" Style="{StaticResource LabelStyle}"/>
+                    <ComboBox x:Name="cbRole" Style="{StaticResource ModernComboBox}">
+                        <ComboBoxItem Content="👤 Utilisateur" IsSelected="True"/>
+                        <ComboBoxItem Content="👨‍💼 Administrateur"/>
+                    </ComboBox>
+
+                    <!-- Info sur le mot de passe -->
+                    <Border Background="#FEF5E7" 
+                            BorderBrush="#F39C12" 
+                            BorderThickness="1" 
+                            CornerRadius="5" 
+                            Padding="10"
+                            Margin="0,0,0,15">
+                        <StackPanel>
+                            <TextBlock Text="ℹ️ Conseils de sécurité" 
+                                       FontWeight="SemiBold" 
+                                       FontSize="12"
+                                       Foreground="#D68910"
+                                       Margin="0,0,0,5"/>
+                            <TextBlock Text="• Minimum 8 caractères" 
+                                       FontSize="11" 
+                                       Foreground="#85651B"/>
+                            <TextBlock Text="• Mélangez lettres et chiffres" 
+                                       FontSize="11" 
+                                       Foreground="#85651B"/>
+                            <TextBlock Text="• Utilisez des caractères spéciaux" 
+                                       FontSize="11" 
+                                       Foreground="#85651B"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Bouton -->
+            <Button Grid.Row="2" 
+                    Content="✔ Créer l'utilisateur" 
+                    Click="BtnCreate_Click" 
+                    Style="{StaticResource ModernButton}"
+                    Margin="0,10,0,0"/>
+        </Grid>
+    </Border>
 </Window>
-

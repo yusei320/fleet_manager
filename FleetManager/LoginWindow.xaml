@@ -1,37 +1,304 @@
 ﻿<Window x:Class="FleetManager.LoginWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Connexion - Fleet Manager" Height="550" Width="800"
+        Title="Connexion - Fleet Manager" Height="650" Width="1000"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen"
-        Background="#F8F8F8">
+        Background="#1A1A2E">
 
-    <Grid Margin="20">
-        <Border Background="White" CornerRadius="10" Padding="20">
-            <Border.Effect>
-                <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="2" Opacity="0.3"/>
-            </Border.Effect>
-            <StackPanel VerticalAlignment="Center">
+    <Window.Resources>
+        <!-- Style pour les TextBox -->
+        <Style x:Key="ModernTextBox" TargetType="TextBox">
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="BorderBrush" Value="#D1D8E0"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#2C3E50"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+                            <ScrollViewer x:Name="PART_ContentHost" 
+                                        Padding="{TemplateBinding Padding}"
+                                        VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="#3498DB"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#5DADE2"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
 
-                <TextBlock Text="Fleet Manager" FontSize="24" FontWeight="Bold" 
-                           HorizontalAlignment="Center" Margin="0,0,0,20"/>
+        <!-- Style pour PasswordBox -->
+        <Style x:Key="ModernPasswordBox" TargetType="PasswordBox">
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="Padding" Value="15,10"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="BorderBrush" Value="#D1D8E0"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#2C3E50"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="PasswordBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+                            <ScrollViewer x:Name="PART_ContentHost" 
+                                        Padding="{TemplateBinding Padding}"
+                                        VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="#3498DB"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#5DADE2"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
 
-                <TextBlock Text="Email :" Margin="0,0,0,5"/>
-                <TextBox x:Name="txtEmail" Height="30" Margin="0,0,0,15" TextChanged="txtInput_TextChanged" />
+        <!-- Style pour les boutons -->
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="Background" Value="#3498DB"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#2980B9"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#21618C"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
 
-                <TextBlock Text="Mot de passe :" Margin="0,0,0,5"/>
-                <PasswordBox x:Name="txtPassword" Height="30" Margin="0,0,0,20" PasswordChanged="txtInput_TextChanged"/>
+        <Style x:Key="SecondaryButton" TargetType="Button">
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#3498DB"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="#3498DB"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#EBF5FB"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#D6EAF8"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
 
-                <Button Content="Se connecter" Height="35" Background="#0078D7" Foreground="White"
-                        FontWeight="SemiBold" Click="BtnConnexion_Click"/>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
 
-                <Button Content="Inscription" Height="35" Background="#0078D7" Foreground="White"
-        FontWeight="SemiBold" Click="BtnInscription_Click"/>
+        <!-- Panel gauche : Visuel / Branding -->
+        <Border Grid.Column="0" Background="#16213E">
+            <Grid>
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <!-- Logo / Icône -->
+                    <Viewbox Width="120" Height="120" Margin="0,0,0,30">
+                        <Canvas Width="100" Height="100">
+                            <Ellipse Fill="#3498DB" Width="100" Height="100"/>
+                            <Path Data="M 30,50 L 45,35 L 70,60 L 45,85 Z" Fill="White" Stroke="White" StrokeThickness="3"/>
+                            <Ellipse Fill="White" Canvas.Left="55" Canvas.Top="35" Width="15" Height="15"/>
+                        </Canvas>
+                    </Viewbox>
 
+                    <TextBlock Text="Fleet Manager" 
+                               FontSize="42" 
+                               FontWeight="Bold" 
+                               Foreground="White"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,15"/>
 
-                <TextBlock x:Name="lblMessage" Foreground="Red" 
-                           HorizontalAlignment="Center" Margin="0,15,0,0"/>
-            </StackPanel>
+                    <TextBlock Text="Gérez votre flotte de véhicules" 
+                               FontSize="18" 
+                               Foreground="#AED6F1"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,5"/>
+
+                    <TextBlock Text="en toute simplicité" 
+                               FontSize="18" 
+                               Foreground="#AED6F1"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,50"/>
+
+                    <!-- Caractéristiques -->
+                    <StackPanel Margin="50,0">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                            <TextBlock Text="✓" FontSize="24" Foreground="#27AE60" Margin="0,0,15,0"/>
+                            <TextBlock Text="Suivi en temps réel" FontSize="16" Foreground="White" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                            <TextBlock Text="✓" FontSize="24" Foreground="#27AE60" Margin="0,0,15,0"/>
+                            <TextBlock Text="Gestion des coûts" FontSize="16" Foreground="White" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="✓" FontSize="24" Foreground="#27AE60" Margin="0,0,15,0"/>
+                            <TextBlock Text="Rapports détaillés" FontSize="16" Foreground="White" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Panel droit : Formulaire de connexion -->
+        <Border Grid.Column="1" Background="White">
+            <Grid Margin="50">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- En-tête -->
+                <StackPanel Grid.Row="0" Margin="0,30,0,40">
+                    <TextBlock Text="Bienvenue" 
+                               FontSize="32" 
+                               FontWeight="Bold" 
+                               Foreground="#2C3E50"
+                               HorizontalAlignment="Left"
+                               Margin="0,0,0,5"/>
+                    <TextBlock Text="Connectez-vous à votre compte" 
+                               FontSize="14" 
+                               Foreground="#7F8C8D"
+                               HorizontalAlignment="Left"/>
+                </StackPanel>
+
+                <!-- Formulaire -->
+                <StackPanel Grid.Row="1" VerticalAlignment="Center">
+                    <!-- Email -->
+                    <TextBlock Text="Adresse email" 
+                               FontSize="14" 
+                               FontWeight="SemiBold"
+                               Foreground="#2C3E50"
+                               Margin="0,0,0,8"/>
+                    <TextBox x:Name="txtEmail" 
+                            Style="{StaticResource ModernTextBox}"
+                            TextChanged="txtInput_TextChanged"
+                            Margin="0,0,0,20"/>
+
+                    <!-- Mot de passe -->
+                    <TextBlock Text="Mot de passe" 
+                               FontSize="14" 
+                               FontWeight="SemiBold"
+                               Foreground="#2C3E50"
+                               Margin="0,0,0,8"/>
+                    <PasswordBox x:Name="txtPassword" 
+                                Style="{StaticResource ModernPasswordBox}"
+                                PasswordChanged="txtInput_TextChanged"
+                                Margin="0,0,0,10"/>
+
+                    <!-- Message d'erreur -->
+                    <Border x:Name="ErrorPanel" 
+                            Background="#FADBD8" 
+                            BorderBrush="#E74C3C" 
+                            BorderThickness="1" 
+                            CornerRadius="6" 
+                            Padding="12"
+                            Margin="0,0,0,25"
+                            Visibility="Collapsed">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⚠" 
+                                       FontSize="16" 
+                                       Foreground="#C0392B" 
+                                       Margin="0,0,10,0"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock x:Name="lblMessage" 
+                                       FontSize="13"
+                                       Foreground="#C0392B" 
+                                       TextWrapping="Wrap"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Bouton Connexion -->
+                    <Button Content="🔐 Se connecter" 
+                            Click="BtnConnexion_Click"
+                            Style="{StaticResource PrimaryButton}"
+                            Margin="0,0,0,15"/>
+
+                    <!-- Séparateur -->
+                    <Grid Margin="0,10,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Height="1" Background="#D1D8E0" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="ou" Margin="15,0" Foreground="#7F8C8D" FontSize="12"/>
+                        <Border Grid.Column="2" Height="1" Background="#D1D8E0" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- Bouton Inscription -->
+                    <Button Content="✨ Créer un compte" 
+                            Click="BtnInscription_Click"
+                            Style="{StaticResource SecondaryButton}"/>
+                </StackPanel>
+
+                <!-- Footer -->
+                <TextBlock Grid.Row="2" 
+                           Text="© 2024 Fleet Manager - Tous droits réservés" 
+                           FontSize="11" 
+                           Foreground="#95A5A6"
+                           HorizontalAlignment="Center"
+                           Margin="0,20,0,10"/>
+            </Grid>
         </Border>
     </Grid>
 </Window>

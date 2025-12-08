@@ -1,32 +1,252 @@
 ﻿<Window x:Class="FleetManager.AdminWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Administration" Height="500" Width="900" WindowStartupLocation="CenterScreen">
+        Title="Administration" Height="650" Width="1100" 
+        WindowStartupLocation="CenterScreen"
+        Background="#F5F7FA">
+
+    <Window.Resources>
+        <!-- Style pour les GroupBox -->
+        <Style x:Key="ModernGroupBox" TargetType="GroupBox">
+            <Setter Property="BorderBrush" Value="#D1D8E0"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#2C3E50"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GroupBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Border Grid.Row="0" 
+                                        Background="#ECF0F1" 
+                                        CornerRadius="8,8,0,0"
+                                        Padding="15,10">
+                                    <ContentPresenter ContentSource="Header"/>
+                                </Border>
+                                <ContentPresenter Grid.Row="1" Margin="{TemplateBinding Padding}"/>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Style pour les ListBox -->
+        <Style x:Key="ModernListBox" TargetType="ListBox">
+            <Setter Property="BorderBrush" Value="#D1D8E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+
+        <!-- Style pour les ListBoxItem -->
+        <Style TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#3498DB"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#EBF5FB"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Style pour les boutons d'action -->
+        <Style x:Key="ActionButton" TargetType="Button">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="5"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                BorderBrush="{TemplateBinding BorderBrush}">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Bouton Créer (Vert) -->
+        <Style x:Key="CreateButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
+            <Setter Property="Background" Value="#27AE60"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#229954"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#1E8449"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Bouton Supprimer (Rouge) -->
+        <Style x:Key="DeleteButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
+            <Setter Property="Background" Value="#E74C3C"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#C0392B"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#A93226"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Bouton Bloquer (Orange) -->
+        <Style x:Key="BlockButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
+            <Setter Property="Background" Value="#E67E22"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#D35400"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#BA4A00"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
 
     <Grid Margin="20">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="2*"/>
-            <ColumnDefinition Width="3*"/>
-        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-        <!-- Liste des utilisateurs -->
-        <GroupBox Header="Utilisateurs" Margin="10">
+        <!-- En-tête -->
+        <Border Grid.Row="0" 
+                Background="White" 
+                CornerRadius="8" 
+                Padding="20"
+                Margin="0,0,0,20">
+            <Border.Effect>
+                <DropShadowEffect Color="#22000000" 
+                                 Direction="270" 
+                                 ShadowDepth="3" 
+                                 BlurRadius="15" 
+                                 Opacity="0.3"/>
+            </Border.Effect>
             <StackPanel>
-                <ListBox x:Name="UserList" Height="300" SelectionChanged="UserList_SelectionChanged"/>
-
-                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                    <Button Content="Créer" Width="100" Margin="5" Click="BtnCreate_Click"/>
-                    <Button Content="Supprimer" Width="100" Margin="5" Click="BtnDelete_Click"/>
-                    <Button Content="Bloquer/Débloquer" Width="150" Margin="5" Click="BtnBlock_Click"/>
-                </StackPanel>
+                <TextBlock Text="👨‍💼 Panneau d'Administration" 
+                           FontSize="26" 
+                           FontWeight="Bold" 
+                           Foreground="#2C3E50"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="Gérez les utilisateurs et visualisez leurs véhicules" 
+                           FontSize="13" 
+                           Foreground="#7F8C8D"
+                           HorizontalAlignment="Center"
+                           Margin="0,5,0,0"/>
             </StackPanel>
-        </GroupBox>
+        </Border>
 
-        <!-- Voitures de l'utilisateur sélectionné -->
-        <GroupBox Header="Véhicules de l'utilisateur" Grid.Column="1" Margin="10">
-            <StackPanel>
-                <ListBox x:Name="VehiculeList" Height="350"/>
-            </StackPanel>
-        </GroupBox>
+        <!-- Contenu principal -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Panel gauche : Utilisateurs -->
+            <GroupBox Grid.Column="0" 
+                      Header="👥 Gestion des Utilisateurs" 
+                      Margin="0,0,10,0"
+                      Style="{StaticResource ModernGroupBox}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Liste des utilisateurs -->
+                    <Border Grid.Row="0" 
+                            BorderBrush="#D1D8E0" 
+                            BorderThickness="1" 
+                            CornerRadius="5"
+                            Margin="0,0,0,15">
+                        <ListBox x:Name="UserList" 
+                                Style="{StaticResource ModernListBox}"
+                                SelectionChanged="UserList_SelectionChanged"/>
+                    </Border>
+
+                    <!-- Boutons d'action -->
+                    <StackPanel Grid.Row="1" Orientation="Vertical" Margin="0,10,0,0">
+                        <Button Content="➕ Créer un utilisateur" 
+                                Click="BtnCreate_Click"
+                                Style="{StaticResource CreateButton}"
+                                Margin="0,0,0,8"/>
+
+                        <Button Content="🗑️ Supprimer l'utilisateur" 
+                                Click="BtnDelete_Click"
+                                Style="{StaticResource DeleteButton}"
+                                Margin="0,0,0,8"/>
+
+                        <Button Content="🔒 Bloquer / Débloquer" 
+                                Click="BtnBlock_Click"
+                                Style="{StaticResource BlockButton}"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+
+            <!-- Panel droit : Véhicules -->
+            <GroupBox Grid.Column="1" 
+                      Header="🚗 Véhicules de l'Utilisateur" 
+                      Margin="10,0,0,0"
+                      Style="{StaticResource ModernGroupBox}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Info utilisateur sélectionné -->
+                    <Border Grid.Row="0" 
+                            Background="#EBF5FB" 
+                            CornerRadius="5" 
+                            Padding="12"
+                            Margin="0,0,0,15">
+                        <TextBlock x:Name="txtUserInfo"
+                                   Text="ℹ️ Sélectionnez un utilisateur pour voir ses véhicules" 
+                                   FontStyle="Italic"
+                                   Foreground="#3498DB"
+                                   FontSize="13"
+                                   TextWrapping="Wrap"/>
+                    </Border>
+
+                    <!-- Liste des véhicules -->
+                    <Border Grid.Row="1" 
+                            BorderBrush="#D1D8E0" 
+                            BorderThickness="1" 
+                            CornerRadius="5">
+                        <ListBox x:Name="VehiculeList" 
+                                Style="{StaticResource ModernListBox}"/>
+                    </Border>
+                </Grid>
+            </GroupBox>
+        </Grid>
     </Grid>
 </Window>
