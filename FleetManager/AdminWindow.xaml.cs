@@ -1,4 +1,4 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Microsoft.Data.Sqlite;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -7,7 +7,7 @@ namespace FleetManager
 {
     public partial class AdminWindow : Window
     {
-        string connectionString = "server=localhost;Port=3309;database=fleet_managers;uid=root;pwd=;";
+        string connectionString = "Data Source=fleet_manager.db";
         private int adminId;
 
         public AdminWindow(int userId)
@@ -33,13 +33,13 @@ namespace FleetManager
 
             try
             {
-                using MySqlConnection conn = new MySqlConnection(connectionString);
+                using SqliteConnection conn = new SqliteConnection(connectionString);
                 conn.Open();
 
                 string query = "SELECT id, nom, prenom, email, role, bloque_jusqu FROM utilisateurs ORDER BY id";
-                MySqlCommand cmd = new MySqlCommand(query, conn);
+                SqliteCommand cmd = new SqliteCommand(query, conn);
 
-                using MySqlDataReader rd = cmd.ExecuteReader();
+                using SqliteDataReader rd = cmd.ExecuteReader();
                 while (rd.Read())
                 {
                     string bloque = rd["bloque_jusqu"] != DBNull.Value
@@ -62,7 +62,8 @@ namespace FleetManager
         {
             if (UserList.SelectedItem == null) return -1;
 
-            string str = UserList.SelectedItem.ToString();
+            string? str = UserList.SelectedItem as string;
+            if (string.IsNullOrWhiteSpace(str)) return -1;
             return int.Parse(str.Split('-')[0].Trim());
         }
 
@@ -72,16 +73,16 @@ namespace FleetManager
 
             try
             {
-                using MySqlConnection conn = new MySqlConnection(connectionString);
+                using SqliteConnection conn = new SqliteConnection(connectionString);
                 conn.Open();
 
                 // Récupérer le nom de l'utilisateur
                 string userQuery = "SELECT prenom, nom FROM utilisateurs WHERE id=@id";
-                MySqlCommand userCmd = new MySqlCommand(userQuery, conn);
+                SqliteCommand userCmd = new SqliteCommand(userQuery, conn);
                 userCmd.Parameters.AddWithValue("@id", idUser);
 
                 string userName = "";
-                using (MySqlDataReader userRd = userCmd.ExecuteReader())
+                using (SqliteDataReader userRd = userCmd.ExecuteReader())
                 {
                     if (userRd.Read())
                     {
@@ -95,10 +96,10 @@ namespace FleetManager
                                 WHERE id_utilisateur=@id
                                 ORDER BY marque, modele";
 
-                MySqlCommand cmd = new MySqlCommand(query, conn);
+                SqliteCommand cmd = new SqliteCommand(query, conn);
                 cmd.Parameters.AddWithValue("@id", idUser);
 
-                using MySqlDataReader rd = cmd.ExecuteReader();
+                using SqliteDataReader rd = cmd.ExecuteReader();
 
                 if (!rd.HasRows)
                 {
@@ -185,24 +186,24 @@ namespace FleetManager
             {
                 try
                 {
-                    using MySqlConnection conn = new MySqlConnection(connectionString);
+                    using SqliteConnection conn = new SqliteConnection(connectionString);
                     conn.Open();
 
                     // Supprimer d'abord les suivis liés aux véhicules
-                    MySqlCommand deleteSuiviCmd = new MySqlCommand(
+                    SqliteCommand deleteSuiviCmd = new SqliteCommand(
                         @"DELETE FROM suivi WHERE id_vehicule IN 
                           (SELECT id FROM vehicules WHERE id_utilisateur=@id)", conn);
                     deleteSuiviCmd.Parameters.AddWithValue("@id", id);
                     int suiviDeleted = deleteSuiviCmd.ExecuteNonQuery();
 
                     // Supprimer les véhicules
-                    MySqlCommand deleteVehiclesCmd = new MySqlCommand(
+                    SqliteCommand deleteVehiclesCmd = new SqliteCommand(
                         "DELETE FROM vehicules WHERE id_utilisateur=@id", conn);
                     deleteVehiclesCmd.Parameters.AddWithValue("@id", id);
                     int vehiclesDeleted = deleteVehiclesCmd.ExecuteNonQuery();
 
                     // Supprimer l'utilisateur
-                    MySqlCommand deleteUserCmd = new MySqlCommand(
+                    SqliteCommand deleteUserCmd = new SqliteCommand(
                         "DELETE FROM utilisateurs WHERE id=@id", conn);
                     deleteUserCmd.Parameters.AddWithValue("@id", id);
                     deleteUserCmd.ExecuteNonQuery();
@@ -253,12 +254,12 @@ namespace FleetManager
 
             try
             {
-                using MySqlConnection conn = new MySqlConnection(connectionString);
+                using SqliteConnection conn = new SqliteConnection(connectionString);
                 conn.Open();
 
                 // Vérifie si l'utilisateur est déjà bloqué
                 string checkQuery = "SELECT bloque_jusqu FROM utilisateurs WHERE id=@id";
-                MySqlCommand checkCmd = new MySqlCommand(checkQuery, conn);
+                SqliteCommand checkCmd = new SqliteCommand(checkQuery, conn);
                 checkCmd.Parameters.AddWithValue("@id", id);
                 object result = checkCmd.ExecuteScalar();
 
@@ -269,7 +270,7 @@ namespace FleetManager
                     // Bloquer pour 7 jours
                     DateTime dateBloquage = DateTime.Now.AddDays(7);
                     string blockQuery = "UPDATE utilisateurs SET bloque_jusqu=@date WHERE id=@id";
-                    MySqlCommand blockCmd = new MySqlCommand(blockQuery, conn);
+                    SqliteCommand blockCmd = new SqliteCommand(blockQuery, conn);
                     blockCmd.Parameters.AddWithValue("@date", dateBloquage);
                     blockCmd.Parameters.AddWithValue("@id", id);
                     blockCmd.ExecuteNonQuery();
@@ -284,7 +285,7 @@ namespace FleetManager
                 {
                     // Débloquer
                     string unblockQuery = "UPDATE utilisateurs SET bloque_jusqu=NULL WHERE id=@id";
-                    MySqlCommand unblockCmd = new MySqlCommand(unblockQuery, conn);
+                    SqliteCommand unblockCmd = new SqliteCommand(unblockQuery, conn);
                     unblockCmd.Parameters.AddWithValue("@id", id);
                     unblockCmd.ExecuteNonQuery();
 

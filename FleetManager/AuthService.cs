@@ -1,4 +1,4 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Microsoft.Data.Sqlite;
 using System;
 
 namespace FleetManager
@@ -6,21 +6,21 @@ namespace FleetManager
     public static class AuthService
     {
         // Centralise ta chaîne, évite la duplication
-        private static string connectionString = "server=localhost;Port=3309;database=fleet_managers;uid=root;pwd=;";
+        private static string connectionString = "Data Source=fleet_manager.db";
 
         public static string GetUserRole(int userId)
         {
             if (userId <= 0) return string.Empty;
 
-            using MySqlConnection conn = new MySqlConnection(connectionString);
+            using SqliteConnection conn = new SqliteConnection(connectionString);
             conn.Open();
 
             string query = "SELECT role FROM utilisateurs WHERE id=@id";
-            MySqlCommand cmd = new MySqlCommand(query, conn);
+            SqliteCommand cmd = new SqliteCommand(query, conn);
             cmd.Parameters.AddWithValue("@id", userId);
 
             object result = cmd.ExecuteScalar();
-            return result != null && result != DBNull.Value ? result.ToString() : string.Empty;
+            return result != null && result != DBNull.Value ? Convert.ToString(result) ?? string.Empty : string.Empty;
         }
 
         public static bool IsAdmin(int userId)
@@ -33,10 +33,10 @@ namespace FleetManager
         public static bool UserExists(int userId)
         {
             if (userId <= 0) return false;
-            using MySqlConnection conn = new MySqlConnection(connectionString);
+            using SqliteConnection conn = new SqliteConnection(connectionString);
             conn.Open();
             string query = "SELECT COUNT(1) FROM utilisateurs WHERE id=@id";
-            MySqlCommand cmd = new MySqlCommand(query, conn);
+            SqliteCommand cmd = new SqliteCommand(query, conn);
             cmd.Parameters.AddWithValue("@id", userId);
             int count = Convert.ToInt32(cmd.ExecuteScalar());
             return count > 0;

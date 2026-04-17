@@ -1,0 +1,289 @@
+<Window x:Class="FleetManager.VehiclesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Gestion des Véhicules - Fleet Manager" Height="650" Width="1100"
+        WindowStartupLocation="CenterScreen"
+        Background="#F5F7FA">
+
+    <Window.Resources>
+        <!-- Style pour les boutons d'action -->
+        <Style x:Key="ActionButton" TargetType="Button">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="20,0"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Bouton Ajouter (Vert) -->
+        <Style x:Key="AddButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
+            <Setter Property="Background" Value="#27AE60"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#229954"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Bouton Modifier (Bleu) -->
+        <Style x:Key="EditButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
+            <Setter Property="Background" Value="#3498DB"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#2980B9"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Bouton Supprimer (Rouge) -->
+        <Style x:Key="DeleteButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
+            <Setter Property="Background" Value="#E74C3C"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#C0392B"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Bouton Annuler (Gris) -->
+        <Style x:Key="CancelButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
+            <Setter Property="Background" Value="#95A5A6"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#7F8C8D"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Bouton Sauvegarder (Vert foncé) -->
+        <Style x:Key="SaveButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
+            <Setter Property="Background" Value="#27AE60"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#1E8449"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Style pour les TextBox -->
+        <Style x:Key="ModernTextBox" TargetType="TextBox">
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderBrush" Value="#D1D8E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Style pour les Labels -->
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#2C3E50"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- En-tête -->
+        <Border Grid.Row="0" Background="White" CornerRadius="12" Padding="25" Margin="0,0,0,20">
+            <Border.Effect>
+                <DropShadowEffect Color="#22000000" BlurRadius="15" ShadowDepth="3" Opacity="0.2"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="🚗 Gestion des Véhicules" 
+                               FontSize="24" 
+                               FontWeight="Bold" 
+                               Foreground="#2C3E50"/>
+                    <TextBlock Text="Ajoutez, modifiez ou supprimez des véhicules" 
+                               FontSize="13" 
+                               Foreground="#7F8C8D"
+                               Margin="0,5,0,0"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="🔄 Rafraîchir" 
+                            Style="{StaticResource EditButton}"
+                            Command="{Binding RefreshCommand}"
+                            Margin="0,0,10,0"/>
+                    <Button Content="← Retour" 
+                            Style="{StaticResource CancelButton}"
+                            Command="{Binding BackCommand}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Zone principale -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Liste des véhicules -->
+            <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="25" Margin="0,0,15,0">
+                <Border.Effect>
+                    <DropShadowEffect Color="#22000000" BlurRadius="15" ShadowDepth="3" Opacity="0.2"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0" Text="Liste des Véhicules" 
+                               FontSize="16" 
+                               FontWeight="Bold" 
+                               Foreground="#2C3E50"
+                               Margin="0,0,0,15"/>
+                    
+                    <DataGrid Grid.Row="1" 
+                              ItemsSource="{Binding Vehicles}" 
+                              SelectedItem="{Binding SelectedVehicle}"
+                              AutoGenerateColumns="False" 
+                              IsReadOnly="True"
+                              CanUserAddRows="False"
+                              GridLinesVisibility="Horizontal"
+                              HeadersVisibility="Column"
+                              Background="Transparent"
+                              BorderThickness="0"
+                              RowBackground="Transparent"
+                              AlternatingRowBackground="#F8F9FA">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                            <DataGridTextColumn Header="Immatriculation" Binding="{Binding Immatriculation}" Width="120"/>
+                            <DataGridTextColumn Header="Marque" Binding="{Binding Marque}" Width="120"/>
+                            <DataGridTextColumn Header="Modèle" Binding="{Binding Modele}" Width="120"/>
+                            <DataGridTextColumn Header="Année" Binding="{Binding Annee}" Width="80"/>
+                            <DataGridTextColumn Header="Carburant" Binding="{Binding Carburant}" Width="100"/>
+                            <DataGridTextColumn Header="Kilométrage" Binding="{Binding Kilometrage, StringFormat=N0}" Width="120"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+
+            <!-- Formulaire d'édition -->
+            <Border Grid.Column="1" Background="White" CornerRadius="12" Padding="25">
+                <Border.Effect>
+                    <DropShadowEffect Color="#22000000" BlurRadius="15" ShadowDepth="3" Opacity="0.2"/>
+                </Border.Effect>
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <TextBlock Text="📝 Détails du Véhicule" 
+                                   FontSize="16" 
+                                   FontWeight="Bold" 
+                                   Foreground="#2C3E50"
+                                   Margin="0,0,0,20"/>
+
+                        <TextBlock Text="Immatriculation *" Style="{StaticResource FieldLabel}"/>
+                        <TextBox x:Name="txtImmatriculation" 
+                                Text="{Binding EditImmatriculation, UpdateSourceTrigger=PropertyChanged}"
+                                Style="{StaticResource ModernTextBox}"
+                                CharacterCasing="Upper"
+                                Margin="0,0,0,15"/>
+
+                        <TextBlock Text="Marque *" Style="{StaticResource FieldLabel}"/>
+                        <TextBox x:Name="txtMarque" 
+                                Text="{Binding EditMarque, UpdateSourceTrigger=PropertyChanged}"
+                                Style="{StaticResource ModernTextBox}"
+                                Margin="0,0,0,15"/>
+
+                        <TextBlock Text="Modèle *" Style="{StaticResource FieldLabel}"/>
+                        <TextBox x:Name="txtModele" 
+                                Text="{Binding EditModele, UpdateSourceTrigger=PropertyChanged}"
+                                Style="{StaticResource ModernTextBox}"
+                                Margin="0,0,0,15"/>
+
+                        <TextBlock Text="Année" Style="{StaticResource FieldLabel}"/>
+                        <TextBox x:Name="txtAnnee" 
+                                Text="{Binding EditAnnee, UpdateSourceTrigger=PropertyChanged}"
+                                Style="{StaticResource ModernTextBox}"
+                                MaxLength="4"
+                                Margin="0,0,0,15"/>
+
+                        <TextBlock Text="Type de carburant" Style="{StaticResource FieldLabel}"/>
+                        <ComboBox x:Name="cmbCarburant" 
+                                SelectedItem="{Binding EditCarburant}"
+                                Height="35"
+                                Padding="12,8"
+                                FontSize="13"
+                                BorderBrush="#D1D8E0"
+                                BorderThickness="1"
+                                Background="White"
+                                Margin="0,0,0,15">
+                            <ComboBoxItem Content="Essence"/>
+                            <ComboBoxItem Content="Diesel"/>
+                            <ComboBoxItem Content="Hybride"/>
+                            <ComboBoxItem Content="Électrique"/>
+                            <ComboBoxItem Content="GPL"/>
+                        </ComboBox>
+
+                        <TextBlock Text="Kilométrage" Style="{StaticResource FieldLabel}"/>
+                        <TextBox x:Name="txtKilometrage" 
+                                Text="{Binding EditKilometrage, UpdateSourceTrigger=PropertyChanged}"
+                                Style="{StaticResource ModernTextBox}"
+                                Margin="0,0,0,25"/>
+
+                        <!-- Boutons d'action -->
+                        <StackPanel>
+                            <Button Content="💾 Sauvegarder" 
+                                    Command="{Binding SaveVehicleCommand}"
+                                    Style="{StaticResource SaveButton}"
+                                    Margin="0,0,0,10"/>
+                            
+                            <Button Content="❌ Annuler" 
+                                    Command="{Binding CancelEditCommand}"
+                                    Style="{StaticResource CancelButton}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <!-- Barre d'actions -->
+        <Border Grid.Row="2" Background="White" CornerRadius="12" Padding="20" Margin="0,20,0,0">
+            <Border.Effect>
+                <DropShadowEffect Color="#22000000" BlurRadius="15" ShadowDepth="3" Opacity="0.2"/>
+            </Border.Effect>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Content="➕ Ajouter" 
+                        Command="{Binding AddVehicleCommand}"
+                        Style="{StaticResource AddButton}"
+                        Margin="0,0,10,0"/>
+                
+                <Button Content="✏️ Modifier" 
+                        Command="{Binding EditVehicleCommand}"
+                        Style="{StaticResource EditButton}"
+                        Margin="0,0,10,0"/>
+                
+                <Button Content="🗑️ Supprimer" 
+                        Command="{Binding DeleteVehicleCommand}"
+                        Style="{StaticResource DeleteButton}"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

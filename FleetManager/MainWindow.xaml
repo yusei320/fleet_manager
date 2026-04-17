@@ -1,11 +1,52 @@
 ﻿<Window x:Class="FleetManager.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:oxy="http://oxyplot.org/wpf"
         Title="Fleet Manager" Height="700" Width="1200"
         WindowStartupLocation="CenterScreen"
         Background="#F5F7FA">
 
     <Window.Resources>
+        <!-- Cartes génériques -->
+        <Style x:Key="CardBase" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="0,0,0,18"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#000" BlurRadius="12" ShadowDepth="2" Opacity="0.12"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Bouton d'action (copié du style Admin) -->
+        <Style x:Key="ActionButton" TargetType="Button">
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="6,0,0,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#3498DB"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#000" BlurRadius="6" ShadowDepth="1" Opacity="0.12"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Opacity" Value="0.9"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Opacity" Value="0.8"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
         <!-- Style pour le Menu -->
         <Style TargetType="Menu">
             <Setter Property="Background" Value="#2C3E50"/>
@@ -94,30 +135,119 @@
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <StackPanel x:Name="MainContent" Margin="30,20">
 
+                    <!-- Actions globales -->
+                    <DockPanel Margin="0,0,0,15">
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Right">
+                            <Button Content="🔄 Rafraîchir"
+                                    Click="BtnRefresh_Click"
+                                    Style="{StaticResource ActionButton}"
+                                    Background="#3498DB"
+                                    Foreground="White"
+                                    Margin="0,0,0,0"/>
+                            <Button Content="🏠 Accueil"
+                                    Click="BtnHome_Click"
+                                    Style="{StaticResource ActionButton}"
+                                    Background="#95A5A6"
+                                    Foreground="White"
+                                    Margin="8,0,0,0"/>
+                        </StackPanel>
+                    </DockPanel>
+
                     <!-- En-tête du tableau de bord -->
-                    <Border Background="White" 
-                            CornerRadius="10" 
-                            Padding="25"
-                            Margin="0,0,0,25">
-                        <Border.Effect>
-                            <DropShadowEffect Color="#000" BlurRadius="10" ShadowDepth="2" Opacity="0.1"/>
-                        </Border.Effect>
+                    <Border Style="{StaticResource CardBase}">
+                        <DockPanel>
+                            <StackPanel>
+                                <TextBlock Text="📊 Tableau de Bord" 
+                                           FontSize="30" 
+                                           FontWeight="Bold" 
+                                           Foreground="#2C3E50"
+                                           HorizontalAlignment="Left"
+                                           Margin="0,0,0,6"/>
+                                <TextBlock Text="Vue d'ensemble dynamique de votre flotte"
+                                           FontSize="14" 
+                                           Foreground="#7F8C8D"/>
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+
+                    <!-- Filtres -->
+                    <Border Style="{StaticResource CardBase}">
                         <StackPanel>
-                            <TextBlock Text="📊 Tableau de Bord" 
-                                       FontSize="28" 
-                                       FontWeight="Bold" 
+                            <TextBlock Text="Filtres"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
                                        Foreground="#2C3E50"
-                                       HorizontalAlignment="Left"
-                                       Margin="0,0,0,5"/>
-                            <TextBlock Text="Vue d'ensemble de votre flotte de véhicules" 
-                                       FontSize="14" 
-                                       Foreground="#7F8C8D"/>
+                                       Margin="0,0,0,10"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                    <TextBlock Text="Véhicule" Foreground="#7F8C8D" Margin="0,0,0,4"/>
+                                    <ComboBox x:Name="cbVehicleFilter"
+                                              DisplayMemberPath="Label"
+                                              SelectedValuePath="Id"
+                                              Height="34"
+                                              MinWidth="180"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                                    <TextBlock Text="Date début" Foreground="#7F8C8D" Margin="0,0,0,4"/>
+                                    <DatePicker x:Name="dpStartDate" Height="34"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2" Margin="0,0,12,0">
+                                    <TextBlock Text="Date fin" Foreground="#7F8C8D" Margin="0,0,0,4"/>
+                                    <DatePicker x:Name="dpEndDate" Height="34"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Bottom">
+                                    <Button Content="Appliquer"
+                                            Click="BtnApplyFilters_Click"
+                                            Style="{StaticResource ActionButton}"
+                                            Background="#27AE60"
+                                            Margin="0,0,6,0"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Bottom">
+                                    <CheckBox x:Name="chkAdminAll"
+                                              Visibility="Collapsed"
+                                              Content="Mode admin : tous les utilisateurs"
+                                              Margin="0,0,12,0"
+                                              VerticalAlignment="Center"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Bottom">
+                                    <Button x:Name="btnToggleAdmin"
+                                            Content="🔀 Basculer admin"
+                                            Click="BtnToggleAdmin_Click"
+                                            Style="{StaticResource ActionButton}"
+                                            Background="#8E44AD"
+                                            Foreground="White"
+                                            Visibility="Collapsed"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Bottom">
+                                    <Button Content="Réinitialiser"
+                                            Click="BtnResetFilters_Click"
+                                            Style="{StaticResource ActionButton}"
+                                            Background="#95A5A6"/>
+                                </StackPanel>
+                            </Grid>
                         </StackPanel>
                     </Border>
 
                     <!-- Cartes de statistiques -->
-                    <Grid Margin="0,0,0,25">
+                    <Grid Margin="0,0,0,20">
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
@@ -159,7 +289,76 @@
                                            Foreground="#2C3E50"/>
                             </StackPanel>
                         </Border>
+
+                        <!-- Carte Litres -->
+                        <Border Grid.Column="2" Style="{StaticResource StatCard}">
+                            <StackPanel>
+                                <TextBlock Text="⛽" 
+                                           FontSize="32" 
+                                           HorizontalAlignment="Left"
+                                           Margin="0,0,0,10"/>
+                                <TextBlock Text="Carburant consommé" 
+                                           FontSize="14" 
+                                           Foreground="#7F8C8D"
+                                           Margin="0,0,0,5"/>
+                                <TextBlock x:Name="txtLitresTotal" 
+                                           Text="0 L" 
+                                           FontSize="28" 
+                                           FontWeight="Bold" 
+                                           Foreground="#2C3E50"/>
+                            </StackPanel>
+                        </Border>
                     </Grid>
+
+                    <!-- Section graphiques -->
+                    <Border Background="White"
+                            CornerRadius="10"
+                            Padding="25"
+                            Margin="0,0,0,25">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#000" BlurRadius="10" ShadowDepth="2" Opacity="0.1"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                                <TextBlock Text="📈"
+                                           FontSize="22"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="Tendances récentes"
+                                           FontSize="20"
+                                           FontWeight="SemiBold"
+                                           Foreground="#2C3E50"
+                                           VerticalAlignment="Center"
+                                           Margin="8,0,0,0"/>
+                            </StackPanel>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                    <TextBlock Text="Distance parcourue (6 derniers mois)"
+                                               FontSize="14"
+                                               Foreground="#7F8C8D"
+                                               Margin="0,0,0,8"/>
+                                    <oxy:PlotView x:Name="pvDistance"
+                                                  Height="280"
+                                                  Model="{Binding MonthlyDistanceModel}"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                    <TextBlock Text="Coût carburant (6 derniers mois)"
+                                               FontSize="14"
+                                               Foreground="#7F8C8D"
+                                               Margin="0,0,0,8"/>
+                                    <oxy:PlotView x:Name="pvCost"
+                                                  Height="280"
+                                                  Model="{Binding MonthlyCostModel}"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
 
                     <!-- Section Suivis récents -->
                     <Border Background="White" 

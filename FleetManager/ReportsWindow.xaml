@@ -1,0 +1,253 @@
+<Window x:Class="FleetManager.ReportsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Rapports - Fleet Manager" Height="650" Width="1000"
+        WindowStartupLocation="CenterScreen"
+        Background="#F5F7FA">
+
+    <Window.Resources>
+        <!-- Style pour les boutons d'action -->
+        <Style x:Key="ActionButton" TargetType="Button">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="20,0"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Bouton Principal (Bleu) -->
+        <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
+            <Setter Property="Background" Value="#3498DB"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#2980B9"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Bouton Export (Vert) -->
+        <Style x:Key="ExportButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
+            <Setter Property="Background" Value="#27AE60"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#229954"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Bouton Retour (Gris) -->
+        <Style x:Key="BackButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
+            <Setter Property="Background" Value="#95A5A6"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#7F8C8D"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Style pour les cartes statistiques -->
+        <Style x:Key="StatCard" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#22000000" BlurRadius="15" ShadowDepth="3" Opacity="0.2"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Style pour les labels de statistiques -->
+        <Style x:Key="StatLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#7F8C8D"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+        </Style>
+
+        <!-- Style pour les valeurs de statistiques -->
+        <Style x:Key="StatValue" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#2C3E50"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- En-tête -->
+        <Border Grid.Row="0" Background="White" CornerRadius="12" Padding="25" Margin="0,0,0,20">
+            <Border.Effect>
+                <DropShadowEffect Color="#22000000" BlurRadius="15" ShadowDepth="3" Opacity="0.2"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="📊 Rapports" 
+                               FontSize="24" 
+                               FontWeight="Bold" 
+                               Foreground="#2C3E50"/>
+                    <TextBlock Text="Générez et consultez les rapports de l'application" 
+                               FontSize="13" 
+                               Foreground="#7F8C8D"
+                               Margin="0,5,0,0"/>
+                </StackPanel>
+                <Button Grid.Column="1" 
+                        Content="← Retour" 
+                        Style="{StaticResource BackButton}"
+                        Command="{Binding BackCommand}"/>
+            </Grid>
+        </Border>
+
+        <!-- Filtres et statistiques -->
+        <Grid Grid.Row="1" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Filtres -->
+            <Border Grid.Column="0" Background="White" CornerRadius="12" Padding="25" Margin="0,0,15,0">
+                <Border.Effect>
+                    <DropShadowEffect Color="#22000000" BlurRadius="15" ShadowDepth="3" Opacity="0.2"/>
+                </Border.Effect>
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel Margin="0,0,20,0">
+                        <TextBlock Text="Type de Rapport" Style="{StaticResource StatLabel}"/>
+                        <ComboBox ItemsSource="{Binding ReportTypes}"
+                                  SelectedItem="{Binding SelectedReportType}"
+                                  Height="35"
+                                  Padding="12,8"
+                                  FontSize="13"
+                                  BorderBrush="#D1D8E0"
+                                  BorderThickness="1"
+                                  Background="White"
+                                  Width="200"/>
+                    </StackPanel>
+
+                    <StackPanel Margin="0,0,20,0">
+                        <TextBlock Text="Date Début" Style="{StaticResource StatLabel}"/>
+                        <DatePicker SelectedDate="{Binding StartDate}"
+                                   Height="35"
+                                   Padding="12,8"
+                                   FontSize="13"
+                                   BorderBrush="#D1D8E0"
+                                   BorderThickness="1"
+                                   Background="White"
+                                   Width="150"/>
+                    </StackPanel>
+
+                    <StackPanel Margin="0,0,20,0">
+                        <TextBlock Text="Date Fin" Style="{StaticResource StatLabel}"/>
+                        <DatePicker SelectedDate="{Binding EndDate}"
+                                   Height="35"
+                                   Padding="12,8"
+                                   FontSize="13"
+                                   BorderBrush="#D1D8E0"
+                                   BorderThickness="1"
+                                   Background="White"
+                                   Width="150"/>
+                    </StackPanel>
+
+                    <Button Content="🔄 Générer" 
+                            Style="{StaticResource PrimaryButton}"
+                            Command="{Binding GenerateReportCommand}"
+                            VerticalAlignment="Bottom"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Statistiques -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Border Style="{StaticResource StatCard}" Margin="0,0,10,0" Width="150">
+                    <StackPanel>
+                        <TextBlock Text="Total" Style="{StaticResource StatLabel}"/>
+                        <TextBlock Text="{Binding TotalValue, StringFormat=N2}" Style="{StaticResource StatValue}"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource StatCard}" Margin="0,0,10,0" Width="150">
+                    <StackPanel>
+                        <TextBlock Text="Moyenne" Style="{StaticResource StatLabel}"/>
+                        <TextBlock Text="{Binding AverageValue, StringFormat=N2}" Style="{StaticResource StatValue}"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource StatCard}" Width="150">
+                    <StackPanel>
+                        <TextBlock Text="Enregistrements" Style="{StaticResource StatLabel}"/>
+                        <TextBlock Text="{Binding RecordCount}" Style="{StaticResource StatValue}"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+
+        <!-- Données du rapport -->
+        <Border Grid.Row="2" Background="White" CornerRadius="12" Padding="25">
+            <Border.Effect>
+                <DropShadowEffect Color="#22000000" BlurRadius="15" ShadowDepth="3" Opacity="0.2"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" 
+                               Text="📈 Données du Rapport" 
+                               FontSize="18" 
+                               FontWeight="Bold" 
+                               Foreground="#2C3E50"/>
+                    <Button Grid.Column="1" 
+                            Content="📥 Exporter" 
+                            Style="{StaticResource ExportButton}"
+                            Command="{Binding ExportReportCommand}"/>
+                </Grid>
+
+                <DataGrid Grid.Row="1" 
+                          ItemsSource="{Binding ReportData}" 
+                          AutoGenerateColumns="False" 
+                          IsReadOnly="True"
+                          CanUserAddRows="False"
+                          GridLinesVisibility="Horizontal"
+                          HeadersVisibility="Column"
+                          Background="Transparent"
+                          BorderThickness="0"
+                          RowBackground="Transparent"
+                          AlternatingRowBackground="#F8F9FA">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Période" Binding="{Binding Month}" Width="150"/>
+                        <DataGridTextColumn Header="Valeur" Binding="{Binding Value, StringFormat=N2}" Width="150"/>
+                        <DataGridTextColumn Header="Pourcentage" Binding="{Binding Percentage, StringFormat=N1}" Width="120"/>
+                        <DataGridTextColumn Header="Count" Binding="{Binding Count}" Width="100"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

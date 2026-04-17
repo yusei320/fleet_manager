@@ -1,4 +1,4 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Microsoft.Data.Sqlite;
 using System;
 using System.Data;
 using System.Windows;
@@ -20,7 +20,7 @@ namespace FleetManager
 
         private void LoadVehicules()
         {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            using (SqliteConnection conn = new SqliteConnection(connectionString))
             {
                 try
                 {
@@ -29,12 +29,14 @@ namespace FleetManager
                                      FROM vehicules 
                                      WHERE id_utilisateur=@id";
 
-                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    SqliteCommand cmd = new SqliteCommand(query, conn);
                     cmd.Parameters.AddWithValue("@id", currentUserId);
 
-                    MySqlDataAdapter adapter = new MySqlDataAdapter(cmd);
                     DataTable dt = new DataTable();
-                    adapter.Fill(dt);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        dt.Load(reader);
+                    }
 
                     cmbVehicule.ItemsSource = dt.DefaultView;
                     cmbVehicule.DisplayMemberPath = "immatriculation";
@@ -77,7 +79,7 @@ namespace FleetManager
                 return;
             }
 
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            using (SqliteConnection conn = new SqliteConnection(connectionString))
             {
                 try
                 {
@@ -87,7 +89,7 @@ namespace FleetManager
                                      (id_vehicule, date_suivi, carburant_litre, cout, distance_km, commentaire)
                                      VALUES (@id_vehicule, @date_suivi, @carburant, @cout, @distance, @commentaire)";
 
-                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    SqliteCommand cmd = new SqliteCommand(query, conn);
                     cmd.Parameters.AddWithValue("@id_vehicule", idVehicule);
                     cmd.Parameters.AddWithValue("@date_suivi", dateSuivi);
                     cmd.Parameters.AddWithValue("@carburant", carburant);
@@ -108,14 +110,14 @@ namespace FleetManager
 
         private bool CheckVehiculeOwnership(int vehId)
         {
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            using (SqliteConnection conn = new SqliteConnection(connectionString))
             {
                 conn.Open();
 
                 string query = @"SELECT COUNT(*) FROM vehicules 
                                  WHERE id=@veh AND id_utilisateur=@user";
 
-                MySqlCommand cmd = new MySqlCommand(query, conn);
+                SqliteCommand cmd = new SqliteCommand(query, conn);
                 cmd.Parameters.AddWithValue("@veh", vehId);
                 cmd.Parameters.AddWithValue("@user", currentUserId);
 

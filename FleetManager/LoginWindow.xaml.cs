@@ -1,4 +1,5 @@
-﻿using MySql.Data.MySqlClient;
+﻿using FleetManager.Models;
+using FleetManager.Services;
 using System;
 using System.Windows;
 
@@ -6,9 +7,12 @@ namespace FleetManager
 {
     public partial class LoginWindow : Window
     {
+        private readonly DatabaseService _dbService;
+
         public LoginWindow()
         {
             InitializeComponent();
+            _dbService = new DatabaseService();
         }
 
         private void BtnConnexion_Click(object sender, RoutedEventArgs e)
@@ -16,75 +20,144 @@ namespace FleetManager
             string email = txtEmail.Text.Trim();
             string motdepasse = txtPassword.Password.Trim();
 
+            // Validation des champs
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(motdepasse))
             {
-                lblMessage.Text = "Veuillez remplir tous les champs.";
+                ShowError("Veuillez remplir tous les champs.");
                 return;
             }
 
-            string connectionString = "server=localhost;Port=3309;database=fleet_managers;uid=root;pwd=;";
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            // Validation du format email
+            if (!IsValidEmail(email))
             {
-                try
-                {
-                    conn.Open();
-                    string query = "SELECT id, prenom, role, bloque_jusqu FROM utilisateurs WHERE email=@Email AND mot_de_passe=SHA2(@Mdp, 256)";
-                    MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@Email", email);
-                    cmd.Parameters.AddWithValue("@Mdp", motdepasse);
-
-                    using (MySqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            // Vérifie si l'utilisateur est bloqué
-                            object bloqueObj = reader["bloque_jusqu"];
-                            if (bloqueObj != DBNull.Value && DateTime.TryParse(bloqueObj.ToString(), out DateTime bloqueUntil))
-                            {
-                                if (DateTime.Now < bloqueUntil)
-                                {
-                                    lblMessage.Text = $"Compte bloqué jusqu'au {bloqueUntil}";
-                                    return;
-                                }
-                            }
-
-                            int userId = Convert.ToInt32(reader["id"]);
-                            string role = reader["role"]?.ToString() ?? string.Empty;
-                            var prenom = reader["prenom"] != null ? reader["prenom"].ToString() : string.Empty;
-
-                            MessageBox.Show($"Bienvenue {prenom} ({role})", "Connexion réussie", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                            // Ouvre la bonne fenêtre selon le rôle, en passant l'id utilisateur
-                            if (role.Trim().Equals("Administrateur", StringComparison.OrdinalIgnoreCase))
-                            {
-                                AdminWindow admin = new AdminWindow(userId);
-                                admin.Show();
-                            }
-                            else
-                            {
-                                MainWindow main = new MainWindow(userId);
-                                main.Show();
-                            }
-
-                            this.Close();
-                        }
-                        else
-                        {
-                            lblMessage.Text = "Email ou mot de passe incorrect.";
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Erreur de connexion : " + ex.Message);
-                }
+                ShowError("Format d'email invalide.");
+                return;
             }
+
+            try
+            {
+                // Récupérer l'utilisateur par email
+                var user = _dbService.GetUserByEmail(email);
+                
+                if (user == null)
+                {
+                    ShowError("Email ou mot de passe incorrect.");
+                    return;
+                }
+
+                // Vérifier si le compte est bloqué
+                if (user.EstBloque)
+                {
+                    ShowError($"Compte bloqué jusqu'au {user.BloqueJusqu:dd/MM/yyyy HH:mm}");
+                    return;
+                }
+
+                // Récupérer le mot de passe haché depuis la base de données
+                string? hashedPassword = GetHashedPasswordFromDatabase(email);
+                
+                if (string.IsNullOrEmpty(hashedPassword))
+                {
+                    // Cas de compatibilité : mot de passe en clair (ancienne méthode)
+                    // Vérifier directement avec le mot de passe en clair
+                    if (motdepasse == hashedPassword)
+                    {
+                        LoginUser(user);
+                    }
+                    else
+                    {
+                        ShowError("Email ou mot de passe incorrect.");
+                    }
+                    return;
+                }
+
+                // Vérifier le mot de passe avec BCrypt
+                if (!PasswordService.VerifyPassword(motdepasse, hashedPassword))
+                {
+                    ShowError("Email ou mot de passe incorrect.");
+                    return;
+                }
+
+                // Connexion réussie
+                LoginUser(user);
+            }
+            catch (Exception ex)
+            {
+                ShowError("Erreur de connexion : " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Connecte l'utilisateur et ouvre le dashboard approprié
+        /// </summary>
+        private void LoginUser(User user)
+        {
+            // Enregistrer la session
+            SessionService.Instance.Login(user);
+
+            MessageBox.Show($"Bienvenue {user.Prenom} ({user.Role})", "Connexion réussie", 
+                MessageBoxButton.OK, MessageBoxImage.Information);
+
+            // Ouvre la bonne fenêtre selon le rôle
+            if (user.EstAdministrateur)
+            {
+                AdminDashboard admin = new AdminDashboard(user.Id);
+                admin.Show();
+            }
+            else
+            {
+                UserDashboard userDashboard = new UserDashboard(user.Id);
+                userDashboard.Show();
+            }
+
+            this.Close();
+        }
+
+        /// <summary>
+        /// Récupère le mot de passe haché depuis la base de données
+        /// </summary>
+        private string? GetHashedPasswordFromDatabase(string email)
+        {
+            using var conn = new Microsoft.Data.Sqlite.SqliteConnection("Data Source=fleet_manager.db");
+            conn.Open();
+            
+            string query = "SELECT mot_de_passe FROM utilisateurs WHERE email=@email";
+            using var cmd = new Microsoft.Data.Sqlite.SqliteCommand(query, conn);
+            cmd.Parameters.AddWithValue("@email", email);
+            
+            var result = cmd.ExecuteScalar();
+            return result?.ToString();
+        }
+
+        /// <summary>
+        /// Valide le format d'un email
+        /// </summary>
+        private bool IsValidEmail(string email)
+        {
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == email;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Affiche un message d'erreur
+        /// </summary>
+        private void ShowError(string message)
+        {
+            lblMessage.Text = message;
+            ErrorPanel.Visibility = System.Windows.Visibility.Visible;
         }
 
         // Efface le message d'erreur quand l'utilisateur modifie email ou mot de passe
         private void txtInput_TextChanged(object sender, RoutedEventArgs e)
         {
             lblMessage.Text = "";
+            ErrorPanel.Visibility = System.Windows.Visibility.Collapsed;
         }
 
         private void BtnInscription_Click(object sender, RoutedEventArgs e)

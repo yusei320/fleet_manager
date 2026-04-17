@@ -9,8 +9,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
 		<PackageReference Include="HtmlSanitizer" Version="9.0.886" />
-		<PackageReference Include="MySql.Data" Version="9.5.0" />
+		<PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.0" />
+		<PackageReference Include="OxyPlot.Core" Version="2.1.2" />
+		<PackageReference Include="OxyPlot.Wpf" Version="2.1.2" />
 	</ItemGroup>
 
 	<ItemGroup>

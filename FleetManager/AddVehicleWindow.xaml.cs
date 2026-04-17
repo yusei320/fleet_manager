@@ -1,4 +1,4 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Microsoft.Data.Sqlite;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -32,8 +32,8 @@ namespace FleetManager
             string annee = txtAnnee.Text.Trim();
 
             // Extraire uniquement le texte du carburant sans l'emoji
-            string carburantComplet = (cmbCarburant.SelectedItem as ComboBoxItem)?.Content.ToString();
-            string carburant = null;
+            string? carburantComplet = (cmbCarburant.SelectedItem as ComboBoxItem)?.Content.ToString();
+            string? carburant = null;
 
             if (!string.IsNullOrEmpty(carburantComplet))
             {
@@ -55,7 +55,7 @@ namespace FleetManager
                 return;
             }
 
-            using (MySqlConnection conn = new MySqlConnection(connectionString))
+            using (SqliteConnection conn = new SqliteConnection(connectionString))
             {
                 try
                 {
@@ -63,7 +63,7 @@ namespace FleetManager
                     string query = @"INSERT INTO vehicules 
                                     (immatriculation, marque, modele, annee, carburant, id_utilisateur) 
                                      VALUES (@immat,@marque,@modele,@annee,@carburant,@idUser)";
-                    MySqlCommand cmd = new MySqlCommand(query, conn);
+                    SqliteCommand cmd = new SqliteCommand(query, conn);
                     cmd.Parameters.AddWithValue("@immat", immat);
                     cmd.Parameters.AddWithValue("@marque", marque);
                     cmd.Parameters.AddWithValue("@modele", modele);
